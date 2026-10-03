@@ -1,0 +1,75 @@
+# ---------------------------------------------------------------------------
+#  PyWxDump 4.0.0（微信 4.x 适配版）最小可用打包配置
+#  用途：让 `pip install -e .` 能识别本项目并安装为 4.0.0
+#  位置：D:\PyWxDump_Source\pyproject.toml（必须放在源码根目录，与 pywxdump\ 同级）
+# ---------------------------------------------------------------------------
+
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pywxdump"
+version = "4.0.0"
+description = "PyWxDump 微信 4.x 适配版：读取微信 4.1.x 数据库、只读内存取密钥（原版 3.x 逻辑保持兼容）"
+requires-python = ">=3.10"
+
+# 入口脚本：wxdump = pywxdump.cli:console_run（已核对 cli.py 第 669 行的 def console_run）
+dependencies = [
+    # --- Web / API（wxdump api、wxdump ui、dbshow 都靠它起服务） ---
+    "fastapi",
+    "uvicorn",
+    "starlette",
+    "pydantic",
+    # --- 微信进程 / 内存取密钥（4.x 只读内存扫描） ---
+    "psutil",
+    "Pymem",
+    # --- 数据库解密：Crypto=pycryptodome，Cryptodome=pycryptodomex，两套都在用 ---
+    "pycryptodome",
+    "pycryptodomex",
+    # --- 4.x 消息处理：protobuf 解析、lz4、zstd ---
+    "blackboxprotobuf",
+    "lz4",
+    "zstandard",
+    # --- 数据库连接池 / 数据处理 ---
+    "DBUtils",
+    "numpy",
+    "pandas",
+    # --- 网络与解析 ---
+    "requests",
+    "lxml",
+    "ImageIO",
+    # --- 语音/图像与 Windows 系统接口 ---
+    "PyAudio",
+    "silk-python",
+    "pywin32",
+]
+
+# 词云、情感分析等 analyzer 功能：这些库都是"函数内 import"的懒加载，
+# 不装不影响 wxdump info / bias / api / ui / dbshow 正常运行。
+# 需要时：pip install -e ".[analysis]"
+[project.optional-dependencies]
+analysis = [
+    "jieba",
+    "matplotlib",
+    "seaborn",
+    "wordcloud",
+    "snownlp",
+]
+
+[project.scripts]
+wxdump = "pywxdump.cli:console_run"
+
+[tool.setuptools]
+include-package-data = true
+
+# 只收 pywxdump 包，避免把运行时的 wxdump_work\ 误当成顶层包
+[tool.setuptools.packages.find]
+include = ["pywxdump*"]
+exclude = ["wxdump_work*", "build*", "dist*"]
+
+# 包内非 .py 资源（ui/web 是前端构建产物，tools 里是 libcrypto/realTime.exe）
+[tool.setuptools.package-data]
+pywxdump = ["WX_OFFS.json"]
+"pywxdump.ui" = ["web/*", "web/assets/*"]
+"pywxdump.wx_core" = ["tools/*"]
