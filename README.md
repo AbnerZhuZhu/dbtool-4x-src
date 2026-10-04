@@ -65,12 +65,12 @@ pip install -e .
 **第 5 步：验证安装**
 
 ```powershell
-wxdump --version
+wxdump -h
 ```
 
-显示 `4.0.0` 即安装成功。
+标题栏显示 `PyWxDump v4.0.0` 即安装成功（也可用 `wxdump -V`）。
 
-> 若提示"`wxdump` 不是内部或外部命令"，改用 `python -m pywxdump --version`，或把 Python 安装目录下的 `Scripts` 文件夹加入系统 PATH 后重开 PowerShell。
+> 若提示"`wxdump` 不是内部或外部命令"，改用 `python -m pywxdump -h`，或把 Python 安装目录下的 `Scripts` 文件夹加入系统 PATH 后重开 PowerShell。
 
 ---
 
@@ -114,8 +114,9 @@ wxdump ui
 **补充参数（按需使用）**
 
 ```powershell
-wxdump api --port 8081                          # 5000 端口被占用时换端口
-wxdump dbshow -p "D:\某个库.db"                  # 指定数据库文件（也支持 --db_path）
+wxdump api --port 8081                          # 换接口端口（默认 5000）
+wxdump ui -p 8081                               # 换界面端口（默认 17953）
+wxdump dbshow --db_path "D:\某个库.db"           # 指定数据库文件（别名 --db）
 wxdump info --key_file "C:\路径\all_keys.json"   # 内存读不到时，改用本地密钥文件
 ```
 
@@ -197,10 +198,11 @@ wxdump ui
 
 **Q6：提示 `Port 5000 is already in use`？**
 
-端口被占用，换一个端口启动：
+端口被占用，两种处理方式，任选其一：
 
 ```powershell
-wxdump api --port 8081
+wxdump api --port 8081     # 换一个端口启动
+wxdump api --killPort      # 自动结束占用该端口的进程（不加该参数时，会自动换一个空闲端口）
 ```
 
 **Q7：提示 `wxdump` 不是内部或外部命令？**
